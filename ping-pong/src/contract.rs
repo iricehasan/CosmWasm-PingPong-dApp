@@ -43,5 +43,8 @@ pub fn query(
     _msg: QueryMsg,
 ) -> StdResult<Binary, ContractError> {
 
-    unimplemented!()
+    let count = PING_COUNT.load(deps.storage)?;
+    to_binary(&count)
 }
+
+
