@@ -4,8 +4,9 @@ use cosmwasm_std::{
     to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response,
 };
 
+use crate::error::ContractError;
 use crate::msg::{InstantiateMsg, ExecuteMsg, Query};
-use crate::state::{State, STATE};
+use crate::state::{PING_COUNT};
 
 #[entry_point]
 pub fn instantiate(
@@ -18,7 +19,6 @@ pub fn instantiate(
     PING_COUNT.save(deps.storage, &Uint64::zero())?;
     let res = Response::new();
     Ok(res)
-
 
 }
 
