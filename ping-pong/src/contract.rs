@@ -49,3 +49,25 @@ pub fn query(
 
 
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
+    use cosmwasm_std::{coins, from_binary};
+
+    #[test]
+    fn proper_instantiation() {
+        let mut deps = mock_dependencies(&[]);
+
+        let msg = InstantiateMsg {};
+
+        let info = mock_info("creator", &[]);
+
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg);
+        assert_eq("0", res.messages.len());
+
+        let res = query(deps.as_ref(), mock_env, QueryMsg::GetCount {}).unwrap();
+        let value: Uint64 = from_binary(&res).unwrap();
+        assert_eq(Uint64::zero(), value)
+    }
+}
