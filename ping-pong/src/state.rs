@@ -1,4 +1,5 @@
 use cosmwasm_schema::cw_serde;
 use cw_storage_plus::Item;
+use cosmwasm_std::Uint64;
 
-pub const PING_COUNT: Item<u64> = Item::new("ping_count");
+pub const PING_COUNT: Item<Uint64> = Item::new("ping_count");
