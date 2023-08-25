@@ -14,7 +14,12 @@ pub fn instantiate(
     _info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> StdResult<Response, ContractError> {
+    
     PING_COUNT.save(deps.storage, &0u64)?;
+    let res = Response::new();
+    Ok(res)
+
+
 }
 
 
