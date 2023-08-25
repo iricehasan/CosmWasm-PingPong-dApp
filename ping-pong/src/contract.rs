@@ -14,7 +14,7 @@ pub fn instantiate(
     _info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> StdResult<Response, ContractError> {
-    unimplemented!()
+    PING_COUNT.save(deps.storage, &0u64)?;
 }
 
 

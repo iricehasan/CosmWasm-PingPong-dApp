@@ -403,6 +403,7 @@ dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus",
+ "thiserror",
 ]
 
 [[package]]
