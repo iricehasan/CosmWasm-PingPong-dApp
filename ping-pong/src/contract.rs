@@ -1,7 +1,7 @@
 use cosmwasm_std::entry_point;
 
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response,
+    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response, Uint64, StdError
 };
 
 use crate::error::ContractError;
@@ -30,8 +30,22 @@ pub fn execute(
     _info: MessageInfo,
     _msg: ExecuteMsg,
 ) -> StdResult<Response, ContractError> {
+    let mut count = Uint64::zero();
+    match msg {
+        ExecuteMsg::Ping {} => {
+            let _: Result<Uint64, StdError> = PING_COUNT.update(deps.storage, |exists| {
+                count = exists.add(Uint64::from(1u8));
+                Ok(count)
+            });
 
-    unimplemented!()
+            let mut res = Response::new();
+            res.attributes().push(attr("ping_count", count));
+            res.data(Some(to_binary("pong")));
+
+            Ok(res)
+        }
+
+    }
 }
 
 
