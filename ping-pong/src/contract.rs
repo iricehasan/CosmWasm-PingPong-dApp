@@ -78,10 +78,33 @@ mod tests {
         let info = mock_info("creator", &[]);
 
         let res = instantiate(deps.as_mut(), mock_env(), info, msg);
-        assert_eq("0", res.messages.len());
+        assert_eq!("0", res.messages.len());
 
         let res = query(deps.as_ref(), mock_env, QueryMsg::GetCount {}).unwrap();
         let value: Uint64 = from_binary(&res).unwrap();
-        assert_eq(Uint64::zero(), value) 
+        assert_eq!(Uint64::zero(), value) 
+    }
+
+    #[test]
+    fn test_ping() {
+        let mut deps = mock_dependencies(&[]);
+
+        let msg = InstantiateMsg {};
+        let info = mock_info("creator", &[]);
+
+        // Instantiate
+        instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let msg = ExecuteMsg::Ping {};
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        assert_eq!(res.attributes.len(), 1);
+        assert_eq!(res.attributes, vec![attr("ping_count", 1)]);
+
+        let data: String = from_binary(&res.data.unwrap()).unwrap();
+        assert_eq!(data, "pong");
+
+
+
     }
 }
