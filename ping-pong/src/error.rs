@@ -5,4 +5,8 @@ use thiserror::Error;
 pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
+
+    #[error("Unauhorized")]
+    Unauhorized {},
+
 }

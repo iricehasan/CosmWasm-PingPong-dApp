@@ -1,12 +1,13 @@
 use cosmwasm_std::entry_point;
 
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response, Uint64, StdError
+   attr,  to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response, Uint64, StdError
 };
 
 use crate::error::ContractError;
-use crate::msg::{InstantiateMsg, ExecuteMsg, Query};
-use crate::state::{PING_COUNT};
+use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg};
+use crate::state::PING_COUNT;
+use std::ops::Add;
 
 #[entry_point]
 pub fn instantiate(
@@ -14,7 +15,7 @@ pub fn instantiate(
     _env: Env,
     _info: MessageInfo,
     _msg: InstantiateMsg,
-) -> StdResult<Response, ContractError> {
+) -> Result<Response, ContractError> {
 
     PING_COUNT.save(deps.storage, &Uint64::zero())?;
     let res = Response::new();
@@ -26,36 +27,36 @@ pub fn instantiate(
 #[entry_point]
 pub fn execute(
     deps: DepsMut,
-    _env: Env,
-    _info: MessageInfo,
-    _msg: ExecuteMsg,
-) -> StdResult<Response, ContractError> {
-    let mut count = Uint64::zero();
+    env: Env,
+    info: MessageInfo,
+    msg: ExecuteMsg,
+) -> Result<Response, ContractError> {
+
     match msg {
-        ExecuteMsg::Ping {} => {
-            let _: Result<Uint64, StdError> = PING_COUNT.update(deps.storage, |exists| {
-                count = exists.add(Uint64::from(1u8));
-                Ok(count)
-            });
-
-            let mut res = Response::new();
-            res.attributes().push(attr("ping_count", count));
-            res.data(Some(to_binary("pong")));
-
-            Ok(res)
+        ExecuteMsg::Ping {} => ping(deps, env, info),
         }
-
-    }
 }
 
+pub fn ping(deps: DepsMut, _env: Env, _info: MessageInfo) -> Result<Response, ContractError> {
+    let mut count = Uint64::zero();
+    let res: Result<Uint64, StdError> = PING_COUNT.update(deps.storage, |exists| {
+        count = exists.add(Uint64::from(1u8));
+        Ok(count)
+    });
+    res?;
 
+    let mut res = Response::new();
+    res.attributes.push(attr("ping_count", count));
+    res.data = Some(to_binary("pong")?);
+    Ok(res)
+}
 
 #[entry_point]
 pub fn query(
     deps: Deps,
     _env: Env,
     _msg: QueryMsg,
-) -> StdResult<Binary, ContractError> {
+) -> StdResult<Binary> {
 
     let count = PING_COUNT.load(deps.storage)?;
     to_binary(&count)
@@ -77,10 +78,10 @@ mod tests {
 
         let info = mock_info("creator", &[]);
 
-        let res = instantiate(deps.as_mut(), mock_env(), info, msg);
-        assert_eq!("0", res.messages.len());
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
 
-        let res = query(deps.as_ref(), mock_env, QueryMsg::GetCount {}).unwrap();
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetCount {}).unwrap();
         let value: Uint64 = from_binary(&res).unwrap();
         assert_eq!(Uint64::zero(), value) 
     }
@@ -93,18 +94,19 @@ mod tests {
         let info = mock_info("creator", &[]);
 
         // Instantiate
-        instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        instantiate(deps.as_mut(), mock_env(), info.clone(), msg).unwrap();
 
         let msg = ExecuteMsg::Ping {};
-        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
-
+        let res = execute(deps.as_mut(), mock_env(), info.clone(), msg.clone()).unwrap();
         assert_eq!(res.attributes.len(), 1);
         assert_eq!(res.attributes, vec![attr("ping_count", 1)]);
-
         let data: String = from_binary(&res.data.unwrap()).unwrap();
         assert_eq!(data, "pong");
 
-
-
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(res.attributes.len(), 1);
+        assert_eq!(res.attributes, vec![attr("ping_count", 2)]);
+        let data: String = from_binary(&res.data.unwrap()).unwrap();
+        assert_eq!(data, "pong");
     }
 }
