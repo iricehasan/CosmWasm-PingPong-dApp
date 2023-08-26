@@ -68,6 +68,6 @@ mod tests {
 
         let res = query(deps.as_ref(), mock_env, QueryMsg::GetCount {}).unwrap();
         let value: Uint64 = from_binary(&res).unwrap();
-        assert_eq(Uint64::zero(), value)
+        assert_eq(Uint64::zero(), value) 
     }
 }

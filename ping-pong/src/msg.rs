@@ -6,6 +6,7 @@ pub struct InstantiateMsg {
 
 #[cw_serde]
 pub enum ExecuteMsg {
+    Ping {}
 }
 
 #[cw_serde]
