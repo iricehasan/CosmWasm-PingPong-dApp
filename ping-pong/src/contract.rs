@@ -1,7 +1,7 @@
 use cosmwasm_std::entry_point;
 
 use cosmwasm_std::{
-   attr,  to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response, Uint64, StdError
+   attr, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, StdResult, Response, Uint64, StdError
 };
 
 use crate::error::ContractError;
@@ -68,11 +68,11 @@ pub fn query(
 mod tests {
     use super::*;
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-    use cosmwasm_std::{coins, from_binary};
+    use cosmwasm_std::from_binary;
 
     #[test]
     fn proper_instantiation() {
-        let mut deps = mock_dependencies(&[]);
+        let mut deps = mock_dependencies();
 
         let msg = InstantiateMsg {};
 
@@ -88,7 +88,7 @@ mod tests {
 
     #[test]
     fn test_ping() {
-        let mut deps = mock_dependencies(&[]);
+        let mut deps = mock_dependencies();
 
         let msg = InstantiateMsg {};
         let info = mock_info("creator", &[]);
@@ -99,13 +99,13 @@ mod tests {
         let msg = ExecuteMsg::Ping {};
         let res = execute(deps.as_mut(), mock_env(), info.clone(), msg.clone()).unwrap();
         assert_eq!(res.attributes.len(), 1);
-        assert_eq!(res.attributes, vec![attr("ping_count", 1)]);
+        assert_eq!(res.attributes, vec![attr("ping_count", 1.to_string())]);
         let data: String = from_binary(&res.data.unwrap()).unwrap();
         assert_eq!(data, "pong");
 
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         assert_eq!(res.attributes.len(), 1);
-        assert_eq!(res.attributes, vec![attr("ping_count", 2)]);
+        assert_eq!(res.attributes, vec![attr("ping_count", 2.to_string())]);
         let data: String = from_binary(&res.data.unwrap()).unwrap();
         assert_eq!(data, "pong");
     }
